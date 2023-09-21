@@ -54,13 +54,11 @@ Let c be cell cluster $c_1,c_2, ... c_k$. <br/>
 
 We assume the model as zero-inflated beta-binomial model: 
 
-$$ X_{ij} \sim ~ (1-\delta_{g(c)})I\{X_{ij}=0\} + \delta_{g(c)} Binomial(N_{ij},p_{j0})$$
-$$ p_{j0} \sim \text{Beta}(\alpha,\beta)$$
 
-```math
 $$ X_{ij} \sim ~ (1-\delta_{g(c)})I\{X_{ij}=0\} + \delta_{g(c)} Binomial(N_{ij},p_{j0})$$
-$$ p_{j0} \sim \text{Beta}(\alpha,\beta)$$
-```
+
+$$ p_{j0} \sim ~ Beta(\alpha,\beta) $$
+
 
 Assuming we have a missing data telling where distribution $X_{ij}$ is from:
 
@@ -152,9 +150,9 @@ browseURL("example/output/zibb_fit/test_results/15153_G>A_all_diagnostic_plot.pd
 
 <img src="output/zibb_fit/test_results/15153_G>A_all_diagnostic_plot.png" width="1200">
 
-### Step 4. Calculate expected value of coverage-specific false discovery rate
+### Step 4. Calculate expected value of coverage-specific false positives
 
-In biological data, it is also found that a uniform null distribution is rarely uniformly distributed. Rather, an [emprical null distribution](https://www.jstor.org/stable/27590356) is preferred. Besides, a [separate class FDR analysis](https://projecteuclid.org/journals/annals-of-applied-statistics/volume-2/issue-1/Simultaneous-inference-When-should-hypothesis-testing-problems-be-combined/10.1214/07-AOAS141.full) was proposed to reduce overly conservative or overly liberal conclusions in multi-hypothesis testing. The class-wise FDR is estimated via binning the empirical null distribution and local FDR is estimated or each bin. Similarly, for a given variant, we propose a coverage-specific FDR analysis by binning the empirical null distribution for every 20 coverage counts, through **CoverageFP()** function. The expected number of false positives in each variant of interest will be saved as *sig_cell_number.txt* and *expected_false_positive_number.txt*.
+In biological data, it is also found that a real null distribution is rarely uniformly distributed. Rather, an [emprical null distribution](https://www.jstor.org/stable/27590356) is preferred. Besides, a [separate class FDR analysis](https://projecteuclid.org/journals/annals-of-applied-statistics/volume-2/issue-1/Simultaneous-inference-When-should-hypothesis-testing-problems-be-combined/10.1214/07-AOAS141.full) was proposed to reduce overly conservative or overly liberal conclusions in multi-hypothesis testing. The class-wise FDR is estimated via binning the empirical null distribution and local FDR is estimated or each bin. Similarly, for a given variant, we propose a coverage-specific FDR analysis by binning the empirical null distribution for every 20 coverage counts, through **CoverageFP()** function. The expected number of false positives in each variant of interest will be saved as *sig_cell_number.txt* and *expected_false_positive_number.txt*.
 
 ```
 FP_result = CoverageFP(save_path="example/output/zibb_fit/test_results/false_positives/",
