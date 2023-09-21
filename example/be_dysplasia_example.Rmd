@@ -1,0 +1,50 @@
+---
+title: "Tutorial of ZIBB test on Dysplasia and Barrett's Esaphugus example"
+author: "Jiazhen Rong, Rodrigo A. Gier"
+date: "2023-09-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+library(Matrix)
+```
+
+In this tutorial, we will go over how ZIBB test is performed on the dysplasia and Barrett's Esophagus example in our Figure 4.
+
+### Step 1: load example data
+```{r STEP1}
+library(scmtVT)
+library(Matrix)
+# Step 1. load example data
+setwd("~/Documents/GitHub/scmtVT/") # set path to be your folder of the package downloaded in the system
+seu <- readRDS("data/a191_be/a191_be_final.rds")  # seurat object containing scRNA-Seq result and cluster annotations
+counts <- read.table("data/a191_be/a191_be_mt_counts.csv", sep=",", header=T, row.names = 1) # total varaint count matrix
+af_mtx <- read.table("data/a191_be/af_dm.csv",sep=",",header=T, row.names = 1) # alternate allele variant count matrix
+vars_metadata <- read.table("data/a191_be/191_be_allvariants.txt", sep="\t", header=T, row.names = 1) # metadata of the variants
+# formatting data for ZIBB model 
+N=as(as.matrix(counts[sapply(strsplit(rownames(af_mtx),"_"),"[[",1),]), "sparseMatrix") # total count coverage, variant x cell
+rownames(N) <- rownames(af_mtx)
+X =as(as.matrix(as.matrix(N)*af_mtx*0.01), "sparseMatrix")  # alternative allele count coverage, variant x cell
+X = round(X)
+# load cell labels and set background/normal cells
+cell_label <- as.character(seu@active.ident)
+cell_label[cell_label %in% c("FB","IM","VC")] = "Normal"
+cell_label = as.factor(cell_label)
+
+# load somatic variants of interest identified earlier
+voi <- c("2692_G>A", "4037_G>A", "6360_G>A", "7074_G>A", "15153_G>A",
+         "2813_T>C", "5055_T>C", "15305_T>C", "5215_T>C")
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
