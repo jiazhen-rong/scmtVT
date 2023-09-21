@@ -75,7 +75,7 @@ Then from iterative expectation-maximization process, we can estimate the unknow
  - In **E-step**, $E[Z_{ij}|X_{ij},N_{ij}]$ is calculated for the missing variable.
  - In **M-step**, the parameters that maximizes complete data likelihood is estimated. 
  
-And the process is achived via the **EM_ZIBB()** function. Usually we suggest ~100 iterations (setting *iterations=100*) for a stable performance. In real practice, if the running time is too long, ~ 10 iterations is acceptable.
+And the process is achieved via the **EM_ZIBB()** function. Usually we suggest ~100 iterations (setting *iterations=100*) for a stable performance. In real practice, if the running time is too long, ~ 10 iterations is acceptable.
 
 ```
 gc = "Normal" # set background cluster name
