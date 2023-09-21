@@ -1,9 +1,8 @@
----
-title: "Tutorial of ZIBB test on Dysplasia and Barrett's Esaphugus example"
-author: "Jiazhen Rong, Rodrigo A. Gier"
-date: "2023-09-21"
-output: html_document
----
+
+Tutorial of ZIBB test on Dysplasia and Barrett's Esaphugus example
+========================================
+Jiazhen Rong, Rodrigo A. Gier, University of Pennsylvania
+
 
 In this tutorial, we will go over how the Zero-inflated Beta-Binomial (ZIBB) test is performed on the mitochondrial variants of interest and identify significant carriers of the variant, and therefore help with identifying cell lineages. Within a biopsy collected from a patient with high-grade dysplasia, we observed two large clusters of epithelial cells by scRNA-seq. The example data of Barrett's esophagus can be downloaded in Dropbox [here](https://www.dropbox.com/scl/fo/n8bsompncgsj1zwpprtnf/h?rlkey=k32wmueoqv6yzvgfrwcumovd4&dl=0). Please download the data to be in the same folder as our package.
 
