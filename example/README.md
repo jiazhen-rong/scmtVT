@@ -88,7 +88,7 @@ ZIBB_fit_diagnostic_plot(X_sub,N_sub,delta_gc=0.5,alpha=1,beta=1,delta_ij_hat=0.
 # visualize 
 browseURL("example/output/zibb_fit/start_a_1_b_1_del_0.5_Normal.pdf")
 ```
-![](output/zibb_fit/start_a_1_b_1_del_0.5_Normal.png?raw=true "Diagnostic Plot of EM Process"){width=500}
+<img src="output/zibb_fit/start_a_1_b_1_del_0.5_Normal.png" width="500">
 
 ### Step 3: Perform ZIBB statistical test for variants of interest
 
@@ -125,7 +125,7 @@ Here we demonstrate the example of 15153 G>A, which is a mitochondrial lineage m
 # visualize 
 browseURL("example/output/zibb_fit/test_results/15153_G>A_significant_cells_UMAP.pdf")
 ```
-![](15153_G>A_significant_cells_UMAP.png?raw=true "Significant Cells of 15153 G>A in UMAP"){width=1000}
+<img src="15153_G>A_significant_cells_UMAP.png" width="800">
 
 The function also generates corresponding diagnostic plots, where
  - column 1: Alternative Allele Count vs Coverage
@@ -136,7 +136,11 @@ The function also generates corresponding diagnostic plots, where
 And the line representing fitted background signals for a given variant from the ZIBB model is also drawn.
 
 A true variant is expected to have relative high variant allele frequency is high coveraage region, while background signals are usually within low coverage region.
-![](output/zibb_fit/test_results/15153_G>A_all_diagnostic_plot.png?raw=true "Diagnostic of 15153 G>A in UMAP"){width=1000}
+```
+browseURL("example/output/zibb_fit/test_results/15153_G>A_all_diagnostic_plot.pdf")
+```
+
+<img src="output/zibb_fit/test_results/15153_G>A_all_diagnostic_plot.png" width="1200">
 
 ### Step 4. Calculate expected value of coverage-specific false discovery rate
 
