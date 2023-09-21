@@ -53,12 +53,10 @@ Let j be variant index 1, 2, ..., m. <br/>
 Let c be cell cluster $c_1,c_2, ... c_k$. <br/>
 
 We assume the model as zero-inflated beta-binomial model: 
-<<<<<<< HEAD
 
 $$ X_{ij} \sim ~ (1-\delta_{g(c)})I\{X_{ij}=0\} + \delta_{g(c)} Binomial(N_{ij},p_{j0})$$
 $$ p_{j0} \sim \text{Beta}(\alpha,\beta)$$
 
-=======
 ```math
 $$ X_{ij} \sim ~ (1-\delta_{g(c)})I\{X_{ij}=0\} + \delta_{g(c)} Binomial(N_{ij},p_{j0})$$
 $$ p_{j0} \sim \text{Beta}(\alpha,\beta)$$
