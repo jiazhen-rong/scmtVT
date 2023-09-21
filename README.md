@@ -18,7 +18,8 @@ git clone https://github.com/jiazhen-rong/scmtVT.git
 ### Tutorial
 
 An example of identifying significant carrier through ZIBB test is shown below:
-[Tutorial of ZIBB test on Dysplasia and Barrett's Esaphugus example](https://github.com/seasoncloud/Clonalscope/tree/main/samples/P5931/scRNA)
+
+- [Tutorial of ZIBB test on Dysplasia and Barrett's Esaphugus example](https://github.com/seasoncloud/Clonalscope/tree/main/samples/P5931/scRNA)
 
 ### Citations
 If you used the package for formal studies, please cite the following paper:

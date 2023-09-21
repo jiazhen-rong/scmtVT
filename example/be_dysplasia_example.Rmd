@@ -7,21 +7,20 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = F)
-library(Matrix)
 ```
 
 In this tutorial, we will go over how ZIBB test is performed on the dysplasia and Barrett's Esophagus example in our Figure 4.
 
 ### Step 1: load example data
-```{r STEP1}
+```{r STEP1, eval=F,echo=FALSE}
 library(scmtVT)
 library(Matrix)
 # Step 1. load example data
 setwd("~/Documents/GitHub/scmtVT/") # set path to be your folder of the package downloaded in the system
-seu <- readRDS("data/a191_be/a191_be_final.rds")  # seurat object containing scRNA-Seq result and cluster annotations
-counts <- read.table("data/a191_be/a191_be_mt_counts.csv", sep=",", header=T, row.names = 1) # total varaint count matrix
-af_mtx <- read.table("data/a191_be/af_dm.csv",sep=",",header=T, row.names = 1) # alternate allele variant count matrix
-vars_metadata <- read.table("data/a191_be/191_be_allvariants.txt", sep="\t", header=T, row.names = 1) # metadata of the variants
+seu <- readRDS("../data/a191_be/a191_be_final.rds")  # seurat object containing scRNA-Seq result and cluster annotations
+counts <- read.table("../data/a191_be/a191_be_mt_counts.csv", sep=",", header=T, row.names = 1) # total varaint count matrix
+af_mtx <- read.table("../data/a191_be/af_dm.csv",sep=",",header=T, row.names = 1) # alternate allele variant count matrix
+vars_metadata <- read.table("../data/a191_be/191_be_allvariants.txt", sep="\t", header=T, row.names = 1) # metadata of the variants
 # formatting data for ZIBB model 
 N=as(as.matrix(counts[sapply(strsplit(rownames(af_mtx),"_"),"[[",1),]), "sparseMatrix") # total count coverage, variant x cell
 rownames(N) <- rownames(af_mtx)
@@ -43,7 +42,7 @@ voi <- c("2692_G>A", "4037_G>A", "6360_G>A", "7074_G>A", "15153_G>A",
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
+```{r pressure, evaluate=F,echo=FALSE}
 plot(pressure)
 ```
 
