@@ -19,14 +19,14 @@ git clone https://github.com/jiazhen-rong/scmtVT.git
 
 An example of identifying significant carrier through ZIBB test is shown below:
 
-- [Tutorial of ZIBB test on Dysplasia and Barrett's Esaphugus example](https://github.com/seasoncloud/Clonalscope/tree/main/samples/P5931/scRNA)
+- [Tutorial of ZIBB test on Dysplasia and Barrett's Esaphugus example](https://github.com/jiazhen-rong/scmtVT/blob/master/example/)
 
 ### Citations
 If you used the package for formal studies, please cite the following paper:
 
-Clonal cell states link Barrett’s esophagus and esophageal adenocarcinoma
+*Clonal cell states link Barrett’s esophagus and esophageal adenocarcinoma
 Rodrigo A. Gier, Raúl A. Reyes Hueros, Jiazhen Rong, Maureen DeMarshall, Tatiana A. Karakasheva, Amanda B. Muir, Gary W. Falk, Nancy R. Zhang, Sydney M. Shaffer
-bioRxiv 2023.01.26.525564; doi: https://doi.org/10.1101/2023.01.26.525564
+bioRxiv 2023.01.26.525564; doi: https://doi.org/10.1101/2023.01.26.525564*
 
 ### Lisences
 Apache 2.0 Liscence

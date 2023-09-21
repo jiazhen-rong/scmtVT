@@ -4,10 +4,10 @@ library(scmtVT)
 setwd("~/Documents/GitHub/scmtVT/")
 
 # Step 1. load example data
-seu <- readRDS("data/a191_be/a191_be_final.rds")  # seurat object containing scRNA-Seq result and cluster annotations
-counts <- read.table("data/a191_be/a191_be_mt_counts.csv", sep=",", header=T, row.names = 1) # total varaint count matrix
-af_mtx <- read.table("data/a191_be/af_dm.csv",sep=",",header=T, row.names = 1) # alternate allele variant count matrix
-vars_metadata <- read.table("data/a191_be/191_be_allvariants.txt", sep="\t", header=T, row.names = 1) # metadata of the variants
+seu <- readRDS("../data/a191_be/a191_be_final.rds")  # seurat object containing scRNA-Seq result and cluster annotations
+counts <- read.table("../data/a191_be/a191_be_mt_counts.csv", sep=",", header=T, row.names = 1) # total varaint count matrix
+af_mtx <- read.table("../data/a191_be/af_dm.csv",sep=",",header=T, row.names = 1) # alternate allele variant count matrix
+vars_metadata <- read.table("../data/a191_be/191_be_allvariants.txt", sep="\t", header=T, row.names = 1) # metadata of the variants
 # formatting data for ZIBB model 
 N=as(as.matrix(counts[sapply(strsplit(rownames(af_mtx),"_"),"[[",1),]), "sparseMatrix") # total count coverage, variant x cell
 rownames(N) <- rownames(af_mtx)
@@ -46,7 +46,7 @@ pval_df=ZIBB_test(X_sub,N_sub,alpha,beta,delta_ij_hat,gc="Normal",cell_label=cel
                       output=T,plot_umap=T,save_path="example/output/zibb_fit/test_results/",verbose=F)
 # not plotting
 pval_df=ZIBB_test(X_sub,N_sub,alpha,beta,delta_ij_hat,gc="Normal",cell_label=cell_label,seu=seu,voi=voi,
-                  output=F,plot_umap=F,save_path="example/output/zibb_fit/test_results/",verbose=F,plot_diagnostic =F)
+                  output=F,plot_umap=T,save_path="example/output/zibb_fit/test_results/",verbose=F,plot_diagnostic =F)
 # visualize one example
 browseURL("example/output/zibb_fit/")
 
