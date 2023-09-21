@@ -106,11 +106,11 @@ Then, a corresponding statistical test designed for ZIBB is performed on each va
 
 From this step we can obtain the P-value/new test statistics $u_{ij}$ for cell $i$, variant $j$, seeing if they belong to the background distribution by chance:
 $$\mu_{ij} = P(ZIBB(N_{ij},\hat \alpha_0, \hat \beta_0)\geq X_{ij}) = 1-CDF_{ZIBB|N_{ij},\hat\alpha_0,\hat\beta_0}(X_{ij})$$
-$$= 1-\hat\delta_{g(c)\_final} CDF_{Beta-Bin}(X_{ij}|N_{ij},\hat \alpha_0, \hat \beta_0)$$
+$$= 1-\hat\delta_{g(c)\_{final}} CDF_{Beta-Bin}(X_{ij}|N_{ij},\hat \alpha_0, \hat \beta_0)$$
 
 Or to be more variant specific to each variant :
 $$\mu_{ij} = P(ZIB(N_{ij},\hat p_{j0})\geq X_{ij}) = 1-CDF_{ZIB|N_{ij},\hat p_{j0}}(X_{ij})$$
-$$= 1-\hat\delta_{g(c)\_final} CDF_{Bin}(X_{ij}|N_{ij},\hat p_{j0})$$
+$$= 1-\hat\delta_{g(c)\_{final}} CDF_{Bin}(X_{ij}|N_{ij},\hat p_{j0})$$
 And our test hypothesis is:
 $$H_0: U_{ij} \sim Unif[0,1]$$
 $$H_A: U_{ij} \text{ enriched around 0} $$
