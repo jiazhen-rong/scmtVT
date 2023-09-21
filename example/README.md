@@ -53,14 +53,18 @@ Let j be variant index 1, 2, ..., m. <br/>
 Let c be cell cluster $c_1,c_2, ... c_k$. <br/>
 
 We assume the model as zero-inflated beta-binomial model: 
- $$ X_{ij} \sim ~ (1-\delta_{g(c)})I\{X_{ij}=0\} + \delta_{g(c)} Binomial(N_{ij},p_{j0})$$
- $$ p_{j0} \sim \text{Beta}(\alpha,\beta)$$
+```math
+$$ X_{ij} \sim ~ (1-\delta_{g(c)})I\{X_{ij}=0\} + \delta_{g(c)} Binomial(N_{ij},p_{j0})$$
+$$ p_{j0} \sim \text{Beta}(\alpha,\beta)$$
+```
 Assuming we have a missing data telling where distribution $X_{ij}$ is from:
+```math
 $$ Z_{ij} =
 \begin{cases}
       1, & \text{if}\ X_{ij} \sim Beta-Bin(X_{ij} | N_{ij},\alpha,\beta) \text{ , with prob } \delta_{g(c)}\\
       0, & \text{if}\ X_{ij} \sim I\{X_{ij}=0\} \text{ , with prob } 1-\delta_{g(c)}
     \end{cases}$$
+```
 
 Then from iterative expectation-maximization process, we can estimate the unknown parameters of the model (For the math details, please check our method part).
 
