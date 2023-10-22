@@ -4,6 +4,11 @@ This GitHub contains the beta version of the Single Cell Mitochondrial Variant T
 It implements a zero-inflated beta-binomial (ZIBB) test to identify cells that are significant for a given variant of interest in scRNA-seq with mitochondrial enrichment data.
 
 ### Installation
+Dependency of this package is VGAM. 
+Please install the dependencies first. The following commands could be used:
+``` r
+install.packages("VGAM")
+```
 
 To install the package, please use the following commands:
 ``` r
