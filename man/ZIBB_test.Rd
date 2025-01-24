@@ -21,7 +21,11 @@ ZIBB_test(
   plot_umap = T,
   save_path = NULL,
   plot_diagnostic = T,
-  verbose = F
+  verbose = F,
+  umap_coord = NULL,
+  celltype_color = NULL,
+  celltype_cex = NULL,
+  celltype_pch = NULL
 )
 }
 \arguments{
