@@ -19,7 +19,7 @@
 #' @param verbose TRUE or FALSE, representing whether to print out detailed log information.
 #'
 #' @return A matrix containing ZIBB test's p-values of each cell i for each given variant of interest j (cell x variant)
-#' @import ggplot2 grid gridExtra
+#' @import ggplot2 grid gridExtra RColorBrewer
 #'
 #' @export
 #'
@@ -28,12 +28,26 @@
 #'           output=T,plot_umap=T,save_path="example/output/zibb_fit/plots/")
 #'
 ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Normal",cell_label=NULL,seu=NULL,voi=NULL,
-                      output=T,plot_umap=T,save_path=NULL,plot_diagnostic=T,verbose=F){
+                      output=T,plot_umap=T,save_path=NULL,plot_diagnostic=T,verbose=F,
+                      umap_coord=NULL,celltype_color=NULL,celltype_cex=NULL,celltype_pch=NULL){
   if(is.null(save_path)){
     save_path="zibb_fit/plots/"
   }else{
     dir.create(save_path,recursive = T)
   }
+  if(is.null(umap_coord)){
+    if(is.null(seu@reductions$umap)){
+      stop("No UMAP embeddings, please either running standard UMAP or input UMAP coordinates with umap_coord parameter.")
+    }
+    umap_coord=seu@reductions$umap@cell.embeddings
+  }
+  # checking for inputs
+  if (!is.matrix(X_sub) || !is.matrix(N_sub)) stop("X_sub and N_sub must be matrices")
+  if (dim(X_sub) != dim(N_sub)) stop("X_sub and N_sub must have the same dimensions")
+  if (!is.factor(cell_label)) stop("cell_label must be a factor")
+  if (!all(levels(cell_label) %in% unique(cell_label))) stop("Mismatch in cell_label levels")
+  if (!is.null(seu) && !"Seurat" %in% class(seu)) stop("seu must be a Seurat object")
+
   # variant-specific contamination proportion from background/normal cells for variants of interest
   pjN = (alpha + colSums(delta_ij_hat*X_sub,na.rm=TRUE))/(alpha + beta + colSums(delta_ij_hat*N_sub,na.rm=TRUE))
   # dataframe of saving p-value of each given variant of interest
@@ -52,18 +66,34 @@ ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Norm
     n0 = n[cell_label==gc]
 
     # UMAP information
-    plot_df <- as.data.frame(cbind(seu@reductions$umap@cell.embeddings,
+
+    plot_df <- as.data.frame(cbind(umap_coord, #seu@reductions$umap@cell.embeddings,
                                  as.character(seu@active.ident)))
     plot_df$UMAP_1 <- as.numeric(plot_df$UMAP_1)
     plot_df$UMAP_2 <- as.numeric(plot_df$UMAP_2)
     colnames(plot_df) <- c("UMAP_1","UMAP_2","CellType")
 
+
     # Plot diagnostic plot
+    if(is.null(celltype_color)){
+      celltype_color = colorRampPalette(brewer.pal(8, "Accent"))(length(levels(cell_label)))
+      names(celltype_color) = levels(cell_label)
+      # setting normal cells to black color
+      celltype_color[gc] = "black"
+    }
+    if(is.null(celltype_cex)){ # point size
+      celltype_cex=rep(2,length(levels(cell_label)))
+    }
+    if(is.null(celltype_pch)){ # point shape
+      celltype_pch=1:length(levels(cell_label))
+      celltype_pch[which(levels(cell_label)==gc)] = 0
+    }
+
     if(plot_diagnostic==T){
       pdf(diagnostic_plot_path,width=20,height=16)
-      cols=c("red","black","chartreuse4","orange")
-      cex=c(2,2,2,2)
-      pchs = c(1,3,2,1)
+      cols=celltype_color#c("red","black","chartreuse4","orange")
+      cex=celltype_cex # c(2,2,2,2)
+      pchs = celltype_pch#c(1,3,2,1)
       par(mfrow=c(4,5))
     }
     # For each cluster
@@ -198,8 +228,10 @@ ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Norm
         g_list[[k]] = g
         k=k+1
       }
-      pdf(umap_path,width=10,height=4)
-      grid.arrange(grobs =g_list,nrow=floor(sqrt(length(g_list))),top=voi[id])
+      nrow=floor(sqrt(length(g_list)))
+      ncol=ceiling(length(g_list)/nrow)
+      pdf(umap_path,width=5*ncol,height=nrow*4)
+      grid.arrange(grobs =g_list,nrow=nrow,top=voi[id])
       dev.off()
       if(verbose==T){
         message("UMAP of significant cells saved!")

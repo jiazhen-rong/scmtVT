@@ -18,7 +18,7 @@ Estep <- function(X_sub,N_sub,alpha,beta,delta_gc){
     P_betabin= dbetabinom.ab(X_sub[,j], size=N_sub[,j], shape1=alpha, shape2=beta)
     P_betabin*delta_gc/(P_betabin*delta_gc+1-delta_gc)
   })
-  
+
   #  If Xij > 0 case, delta_ij = Zij = 1, variant only from Beta-Bin distirbution
   delta_ij_hat[which(X_sub!=0,arr.ind = TRUE)] = 1
   # ~ 2% of Nij (total count) are 0s, setting these probability to NA
@@ -33,8 +33,8 @@ Estep <- function(X_sub,N_sub,alpha,beta,delta_gc){
 #'
 #' @return NLL, a numeric value representing negative log likelihood related with alpha and beta
 #' @import VGAM
-#' @export 
-#' 
+#' @export
+#'
 #' @examples
 #' NLL=negative_loglik_ab_related(parm,data)
 negative_loglik_ab_related  <-function(parm,data){
@@ -55,7 +55,7 @@ negative_loglik_ab_related  <-function(parm,data){
 #' @param delta_gc  parameter representing non-zero distribution component, estimated from M-step.
 #' @param delta_ij_hat a matrix representing the expected value of each cell and variant's missing identity Zij.
 #'
-#' @return LL, a numeric value representing total log likelihood 
+#' @return LL, a numeric value representing total log likelihood
 #' @import VGAM
 #' @export
 #'
@@ -100,7 +100,7 @@ Mstep <- function(X_sub,N_sub,delta_ij_hat,alpha_old,beta_old,opt_method=c("opti
     alpha_new = param_fit$par[1]
     beta_new = param_fit$par[2]
   } else if("NR"){ # Newton-Raptson for estimating alpha and beta
-    
+
   } # else if("MoM"){ # methods of moments for alpha and beta
   #}
   return(list(delta_gc_new,alpha_new,beta_new))
@@ -126,14 +126,30 @@ Mstep <- function(X_sub,N_sub,delta_ij_hat,alpha_old,beta_old,opt_method=c("opti
 #'   \item alpha_list - list of parameters of beta prior in each iteration, estimated from EM process all iterations.
 #'   \item beta_list - list of parameters of beta prior in each iteration, estimated from EM process all iterations.
 #'   \item LL_list - list of log likelihood in each iteration.
-#'   \item delta_ij_hat - matrix representing missing variable Zij 
+#'   \item delta_ij_hat - matrix representing missing variable Zij
 #' }
-#' 
+#'
 #' @import VGAM
-#' @export 
+#' @export
 #' @examples
 #' param_fit = EM_ZIBB(X_sub,N_sub,alpha=1,beta=1,delta_gc=0.5,iterations=100,stop_diff=1e-05,save_path=NULL,gc="normal",verbose=T)
 EM_ZIBB <- function(X_sub,N_sub,alpha=1,beta=1,delta_gc=0.5,iterations=10,stop_diff=1e-05,gc="Normal",save_path=NULL,verbose=T){
+  print("Starting EM_ZIBB")
+
+  # Ensure inputs are matrices and numeric
+  if (!is.matrix(X_sub)) X_sub <- as.matrix(X_sub)
+  if (!is.matrix(N_sub)) N_sub <- as.matrix(N_sub)
+  if (!all(is.numeric(X_sub), is.numeric(N_sub))) {
+    stop("X_sub and N_sub must be numeric matrices")
+  }
+  # Clean up invalid values
+  X_sub[is.na(X_sub)] <- 0
+  X_sub[!is.finite(X_sub)] <- 0
+  N_sub[is.na(N_sub)] <- 0
+  N_sub[!is.finite(N_sub)] <- 0
+  print(paste("Dimensions of X_sub:", dim(X_sub)))
+  print(paste("Dimensions of N_sub:", dim(N_sub)))
+
   init_alpha=alpha;init_beta=beta;init_delta_gc=delta_gc;
   delta_gc_list = c()
   alpha_list = c()
@@ -143,14 +159,16 @@ EM_ZIBB <- function(X_sub,N_sub,alpha=1,beta=1,delta_gc=0.5,iterations=10,stop_d
   params = list(alpha,beta,delta_gc)
   start.time0 <- Sys.time()
   for(i in 1:iterations){
-    #print(i)
+    if(verbose){
+    print(i)
+    }
     diff = sum(unlist(prev_param) - unlist(params))
     if(abs(diff) < stop_diff){
-      print("equal")
+        print("equal")
       break
     }
     #start.time <- Sys.time()
-    # Estep to get 
+    # Estep to get
     prev_param = params
     delta_ij_hat = Estep(X_sub,N_sub,alpha,beta,delta_gc)
     # Maximization Step in the EM, estimate each parameter based on expectation of Zij

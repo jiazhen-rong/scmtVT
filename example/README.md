@@ -91,8 +91,9 @@ param_fit=EM_ZIBB(X_sub,N_sub,alpha=1,beta=1,delta_gc=0.5,iterations=100,stop_di
 ```
 # (optional) create diagnostic plot
 ZIBB_fit_diagnostic_plot(X_sub,N_sub,delta_gc=0.5,alpha=1,beta=1,delta_ij_hat=0.5,gc="Normal",
-                                     delta_gc_list,LL_list,alpha_list,beta_list,save_path="example/output/zibb_fit/",
-                                     width=10,height=10)
+param_fit$delta_gc_list,param_fit$LL_list,param_fit$alpha_list,param_fit$beta_list,
+save_path="example/output/zibb_fit/",width=10,height=10)
+
 # visualize 
 browseURL("example/output/zibb_fit/start_a_1_b_1_del_0.5_Normal.pdf")
 ```
