@@ -69,8 +69,10 @@ ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Norm
 
     plot_df <- as.data.frame(cbind(umap_coord, #seu@reductions$umap@cell.embeddings,
                                  as.character(seu@active.ident)))
-    plot_df$UMAP_1 <- as.numeric(plot_df$UMAP_1)
-    plot_df$UMAP_2 <- as.numeric(plot_df$UMAP_2)
+    #plot_df$UMAP_1 <- as.numeric(plot_df$UMAP_1)
+    #plot_df$UMAP_2 <- as.numeric(plot_df$UMAP_2)
+    plot_df[,1] <-  as.numeric(plot_df[,1])
+    plot_df[,2] <-  as.numeric(plot_df[,2])
     colnames(plot_df) <- c("UMAP_1","UMAP_2","CellType")
 
 
