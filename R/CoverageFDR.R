@@ -1,4 +1,4 @@
-#' This function is for Coverage-specific False Positives Estimation, 
+#' This function is for Coverage-specific False Positives Estimation,
 #' calculating the number of expected false positives in the significant cells.
 #'
 #' @param bin_size The bin size of coverage. Default is 20 counts per bin.
@@ -17,19 +17,18 @@
 #' @param plot_umap TRUE or FALSE, representing whether to plot significant cells of each cluster on UMAP.
 #' @param plot_diagnostic TRUE or FALSE, representing whether to plot diagnostic plot.
 #' @param verbose TRUE or FALSE, representing whether to print out detailed log information.
-#' 
+#'
 #' @return A list containing:
 #' \itemize{
 #'   \item sig_cell_df Dataframe containing number of significant cells in each variant.
 #'   \item FP_df Dataframe containing number of expected false positives in each variant.
 #' }
-#' @import
 #' @export
 #'
 #' @examples
 #' pval_df=ZIBB_test(X_sub,N_sub,alpha,beta,delta_ij_hat,gc="Normal",cell_label=cell_label,seu=seu,
 #'           output=T,plot_umap=T,save_path="example/output/zibb_fit/plots/")
-#' 
+#'
 CoverageFP <-function(X_sub,N_sub,alpha,beta,delta_ij_hat,bin_size = 20,voi,gc,FDR_alpha=0.1,cell_label,output=T,save_path=NULL){
   if(is.null(save_path)){
     save_path="zibb_fit/test_result/false_positive_rates/"
@@ -37,7 +36,7 @@ CoverageFP <-function(X_sub,N_sub,alpha,beta,delta_ij_hat,bin_size = 20,voi,gc,F
     dir.create(save_path,recursive = T)
   }
   # variant-specific contamination proportion from background/normal cells for variants of interest
-  pjN = (alpha + colSums(delta_ij_hat*X_sub,na.rm=TRUE))/(alpha + beta + colSums(delta_ij_hat*N_sub,na.rm=TRUE))  
+  pjN = (alpha + colSums(delta_ij_hat*X_sub,na.rm=TRUE))/(alpha + beta + colSums(delta_ij_hat*N_sub,na.rm=TRUE))
   # Coverage-Specific FDR
   sig_cell_df = c()
   FP_df = c()
@@ -49,7 +48,7 @@ CoverageFP <-function(X_sub,N_sub,alpha,beta,delta_ij_hat,bin_size = 20,voi,gc,F
     # normal
     x0 = x[cell_label==gc]
     n0 = n[cell_label==gc]
-  
+
     ## record rejected cells in normal
     # Binomial Test
     pnull=pjN[id]
@@ -60,7 +59,7 @@ CoverageFP <-function(X_sub,N_sub,alpha,beta,delta_ij_hat,bin_size = 20,voi,gc,F
     below_thresh = u1[u1_order]<FDR_alpha*c(1:length(u1))/length(cell_label != gc)
     reject = sum(below_thresh)
     rejected_0=u1_order[which(below_thresh)] # rejected cells index in n0
-  
+
     # test within each cluster
     sig_cell_num = c()
     total_FP=c()
@@ -82,15 +81,15 @@ CoverageFP <-function(X_sub,N_sub,alpha,beta,delta_ij_hat,bin_size = 20,voi,gc,F
         sig_cells = rep(0,dim(N)[2])
         sig_cells[rejected_ind] = 1 # 1 for significant, 0 for non-significant
         sig_cell_num <- append(sig_cell_num,length(rejected_ind))
-      
+
         # calculate bin-wise rejections and rejections
         total_bin_num = ceiling(max(N[voi[id],])/bin_size)
         fpr = rep(NA,total_bin_num) # false positive rate
         fp_n = rep(NA,total_bin_num)
         fdr = rep(NA,total_bin_num) # false discovery rate
-        FP_n = rep(NA,total_bin_num) 
+        FP_n = rep(NA,total_bin_num)
         for(bin_n in 1:total_bin_num){
-          # fpr in empirical null distribution 
+          # fpr in empirical null distribution
           fpr[bin_n] = sum((n0[rejected_0] > bin_size *(bin_n-1)) &
                            (n0[rejected_0] <= bin_size *(bin_n))) /
                            (sum((n0 > bin_size *(bin_n-1)) & (n0 <= bin_size * bin_n)) + 0.001)
@@ -104,7 +103,7 @@ CoverageFP <-function(X_sub,N_sub,alpha,beta,delta_ij_hat,bin_size = 20,voi,gc,F
       }
     }
     FP_df <- rbind(FP_df,total_FP)
-    sig_cell_df <- rbind(sig_cell_df,sig_cell_num) 
+    sig_cell_df <- rbind(sig_cell_df,sig_cell_num)
   }
   sig_cell_df <- as.data.frame(sig_cell_df)
   colnames(sig_cell_df) <- levels(cell_label)
