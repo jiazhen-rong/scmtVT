@@ -43,7 +43,7 @@ ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Norm
   }
   # checking for inputs
   #if (!is.matrix(X_sub) || !is.matrix(N_sub)) stop("X_sub and N_sub must be matrices")
-  #if (dim(X_sub) != dim(N_sub)) stop("X_sub and N_sub must have the same dimensions")
+  #if (any(dim(X_sub) != dim(N_sub))) stop("X_sub and N_sub must have the same dimensions")
   #if (!is.factor(cell_label)) stop("cell_label must be a factor")
   #if (!all(levels(cell_label) %in% unique(cell_label))) stop("Mismatch in cell_label levels")
   #if (!is.null(seu) && !"Seurat" %in% class(seu)) stop("seu must be a Seurat object")
