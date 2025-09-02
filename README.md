@@ -2,7 +2,8 @@
 
 ### Overview
 This GitHub contains the beta version of the Single Cell Mitochondrial Variant Test (scmtVT) package.<br/> It implements a zero-inflated beta-binomial (ZIBB) test to identify cells that are significant for a given variant of interest in scRNA-seq with mitochondrial enrichment data.
-All the results in the paper is based on beta version 0.0.0.9.
+
+All the results in the paper is based on the original version v1.0.0.
 
 ### Updates 2025-08-20
 
