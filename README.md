@@ -1,14 +1,40 @@
 # scmtVT
 
+### Overview
 This GitHub contains the beta version of the Single Cell Mitochondrial Variant Test (scmtVT) package.<br/> It implements a zero-inflated beta-binomial (ZIBB) test to identify cells that are significant for a given variant of interest in scRNA-seq with mitochondrial enrichment data.
+All the results in the paper is based on beta version 0.0.0.9.
 
 ### Updates 2025-08-20
 
 The diagnostic plot of each patient is now available in the [results](https://github.com/jiazhen-rong/scmtVT/blob/master/results/) folder.
 
-### Installation
+### Systems Requirement
+#### Hardware requirements
+`scmtVT` requires a standard computer with enough RAM and memory.
+#### Software requirements
+##### OS requirement
+The software was tested on:
+   - MacOS Sequoia (15.6.1)
+   - Rocky Linux 8.10 (Green Obsidian)
+##### R dependencies
+The package depends on the following R packages:
+```
+RColorBrewer, VGAM, ggplot2, gridExtra, cli,         
+glue, grDevices, grid, gtable, isoban,   
+lifecycle, MASS, mgcv, rlang, scales,      
+stats, tibble, vctrs, withr, graphics,    
+utils, methods, stats4, splines, nlme,        
+Matrix, farver, labeling, munsell, R6,          
+viridisLite, fansi, magrittr, pillar, pkgconfig,   
+lattice, colorspace, utf8
+```
 
-Dependency of this package is VGAM. Please install the dependencies first. The following commands could be used:
+### Installation
+The installation of the package shall take < 5min. If question was encountered during installation, feel free to post in Issues.
+
+Please install VGAM first. 
+
+The following commands could be used:
 
 ``` r
 install.packages("VGAM")
@@ -32,7 +58,7 @@ git clone https://github.com/jiazhen-rong/scmtVT.git
 
 An example of how to run the ZIBB test is shown below:
 
--   [Tutorial for the ZIBB test on a dysplastic Barrett's esophagus sample](https://github.com/jiazhen-rong/scmtVT/blob/master/example/)
+-   [Tutorial for the ZIBB test on a dysplastic Barrett's esophagus sample](https://github.com/jiazhen-rong/scmtVT/blob/master/example/). This demo will take ~ 20min. 
 
 ### Citations
 
