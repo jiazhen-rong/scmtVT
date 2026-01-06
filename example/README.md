@@ -124,8 +124,16 @@ load("example/output/zibb_fit/start_a_1_b_1_del_0.5_Normal.RData")
 alpha=alpha_list[length(alpha_list)]
 beta=beta_list[length(beta_list)]
 delta_gc=delta_gc_list[length(delta_gc_list)]
-pval_df=ZIBB_test(X_sub,N_sub,alpha,beta,delta_ij_hat,gc="Normal",cell_label=cell_label,seu=seu,voi=voi,
-                      output=T,plot_umap=T,save_path="example/output/zibb_fit/test_results/",verbose=F)
+
+# Customization of celltype colors
+celltype_color=c(BE="red",DYSP="black",Normal="chartreuse4")
+X_allcells = t(as.matrix(X[voi,]))
+N_allcells = t(as.matrix(N[voi,]))
+pval_df=ZIBB_test(X_sub,N_sub,X_allcells,N_allcells,
+                  alpha,beta,delta_ij_hat,gc="Normal",
+                  cell_label=cell_label,seu=seu,voi=voi,celltype_color=celltype_color,
+                  output=T,plot_umap=T,
+                  save_path="example/output/zibb_fit/test_results/",verbose=F)
 
 ```
 
