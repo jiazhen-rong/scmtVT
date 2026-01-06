@@ -2,8 +2,10 @@
 #' and creates corresponding diagnostic plots.
 #' The significant cells for each variant of interest will be labeled in the diagnostic plot and the UMAP.
 #'
-#' @param X_sub alternate allele count matrix.
-#' @param N_sub total variant count matrix.
+#' @param X_sub alternate allele count matrix with control cells and vois.
+#' @param N_sub total variant count matrix with control cells and vois.
+#' @param X_allcells alternate allele count matrix with all cells and vois.
+#' @param N_allcells total variant count matrix with all cells and vois.
 #' @param alpha parameter of beta prior, estimated from EM.
 #' @param beta  parameter of beta prior, estimated from EM.
 #' @param delta_ij_hat  parameter representing non-zero distribution component, estimated from EM.
@@ -27,9 +29,26 @@
 #' pval_df=ZIBB_test(X_sub,N_sub,alpha,beta,delta_ij_hat,gc="Normal",cell_label=cell_label,seu=seu,
 #'           output=T,plot_umap=T,save_path="example/output/zibb_fit/plots/")
 #'
-ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Normal",cell_label=NULL,seu=NULL,voi=NULL,
+ZIBB_test <- function(X_sub,N_sub,X_allcells,N_allcells,
+                      alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Normal",cell_label=NULL,seu=NULL,voi=NULL,
                       output=T,plot_umap=T,save_path=NULL,plot_diagnostic=T,verbose=F,
                       umap_coord=NULL,celltype_color=NULL,celltype_cex=NULL,celltype_pch=NULL){
+
+  # Auto-detect X & N format - should be variants (row) x barcodes (col)
+  message("Checking input formats...")
+  if (is.null(rownames(X_sub)) || is.null(colnames(X_sub)) ||
+      is.null(rownames(N_sub)) || is.null(colnames(N_sub))) {
+    stop("Please name variants (rownames) and barcodes (colnames) in X_sub and N_sub.")
+  }
+
+  if(voi[1] %in% rownames(X_sub)){
+    message("Transposing X and N matrices to barcodes x variants format...")
+    X_sub=t(X_sub)
+    N_sub =t(N_sub)
+  }else if(voi[1] %in% colnames(X_sub)){
+    message("Identified correct barcodes x variants format.")
+  }
+
   if(is.null(save_path)){
     save_path="zibb_fit/plots/"
   }else{
@@ -58,8 +77,11 @@ ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Norm
     diagnostic_plot_path = paste0(save_path,"/",voi[id], "_all_diagnostic_plot.pdf")
     umap_path = paste0(save_path,"/",voi[id], "_significant_cells_UMAP.pdf")
 
-    x=X_sub[voi[id],]
-    n=N_sub[voi[id],]
+    #x=X_sub[voi[id],]
+    #n=N_sub[voi[id],]
+    x = X_allcells[,voi[id]]
+    n = N_allcells[,voi[id]]
+
     af=x/(n+0.1) # add in a small value to avoid division by 0
     # normal
     x0 = x[cell_label==gc]
@@ -78,10 +100,14 @@ ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Norm
 
     # Plot diagnostic plot
     if(is.null(celltype_color)){
-      celltype_color = colorRampPalette(brewer.pal(8, "Accent"))(length(levels(cell_label)))
+      if(length(levels(cell_label))<8){
+        celltype_color = brewer.pal(length(levels(cell_label)), "Accent")
+      }else{
+        celltype_color = colorRampPalette(brewer.pal(8, "Accent"))(length(levels(cell_label)))
+      }
       names(celltype_color) = levels(cell_label)
-      # setting normal cells to black color
-      celltype_color[gc] = "black"
+      # setting normal cells to grey color
+      celltype_color[gc] = "grey"
     }
     if(is.null(celltype_cex)){ # point size
       celltype_cex=rep(2,length(levels(cell_label)))
@@ -92,11 +118,13 @@ ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Norm
     }
 
     if(plot_diagnostic==T){
-      pdf(diagnostic_plot_path,width=20,height=16)
+      #pdf(diagnostic_plot_path,width=20,height=16)
+      pdf(diagnostic_plot_path,width=20,height=4*length(levels(cell_label)))
       cols=celltype_color#c("red","black","chartreuse4","orange")
       cex=celltype_cex # c(2,2,2,2)
       pchs = celltype_pch#c(1,3,2,1)
-      par(mfrow=c(4,5))
+      #par(mfrow=c(4,5))
+      par(mfrow=c(length(levels(cell_label)),5))
     }
     # For each cluster
     pval = c()
@@ -116,14 +144,16 @@ ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Norm
         rejected_ind = sel1[rejected]
 
         # Add in UMAP information
-        sig_cells = rep(0,dim(N_sub)[2])
+        #sig_cells = rep(0,dim(N_sub)[2])
+        sig_cells = rep(0,length(cell_label))
         sig_cells[rejected_ind] = 1 # 1 for significant, 0 for non-significant
         plot_df <- cbind(plot_df,sig_cells)
         pval = append(pval,u1)
 
         if(output==TRUE){
           # write the cell barcodes of the significant cells
-          write.csv(data.frame(sig_cells=colnames(N_sub)[rejected_ind]),
+          #write.csv(data.frame(sig_cells=colnames(N_sub)[rejected_ind]),
+          write.csv(data.frame(sig_cells=rownames(N_allcells)[rejected_ind]),
                   file=paste0(save_path,"/",voi[id],"_",
                               cluster,"_sig_cells.txt"),
                   row.names = FALSE,quote=FALSE)
@@ -133,86 +163,99 @@ ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Norm
         }
         if(plot_diagnostic==T){
           # X vs N plot -- slope represents VAF
-          plot(N_sub[voi[id],], jitter(X_sub[voi[id],], 0.25), col=cols[as.numeric(cell_label)],
+          #plot(N_sub[voi[id],], jitter(X_sub[voi[id],], 0.25),
+          plot(N_allcells[,voi[id]], jitter(X_allcells[,voi[id]], 0.25), col=cols[as.numeric(cell_label)],
             main=names(voi[id]), pch=pchs[as.numeric(cell_label)],
             cex=cex[as.numeric(cell_label)], xlab="Total Count", ylab="Alternative Allele Count")
-          points(N_sub[voi[id], rejected_ind], X_sub[voi[id],rejected_ind],
+          #points(N_sub[voi[id], rejected_ind], X_sub[voi[id],rejected_ind],
+          points(N_allcells[rejected_ind,voi[id]], X_allcells[rejected_ind,voi[id]],
               pch=18, cex=2, col=cols[as.numeric(unique(cell_label)[unique(cell_label) == cluster])])
           legend(x="topright",  col=c(cols[as.numeric(unique(cell_label))],
                                   cols[as.numeric(unique(cell_label)[unique(cell_label) == cluster])]),
               pch=c(pchs[as.numeric(unique(cell_label))],18),
               legend=paste(c(as.vector(unique(cell_label)),paste0(cluster," FDR 0.1"))),bg="white",bty="o")
-          lines(N_sub[voi[id],],N_sub[voi[id],]*pnull, col="chartreuse4", lwd=2)
-          text(x=max(N_sub[voi[id],])*0.7,y=max(X_sub[voi[id],])*(pnull+0.1),
-            paste0("background freq=",round(pnull,6)),col="chartreuse4")
+          #lines(N_sub[voi[id],],N_sub[voi[id],]*pnull, col="chartreuse4", lwd=2)
+          lines(N_allcells[,voi[id]],N_allcells[,voi[id]]*pnull, col=cols[gc], lwd=2)
+          #text(x=max(N_sub[voi[id],])*0.7,y=max(X_sub[voi[id],])*(pnull+0.1),
+          text(x=max(N_allcells[,voi[id]])*0.7,y=max(X_allcells[,voi[id]])*(pnull+0.1),
+            paste0("background freq=",round(pnull,6)),col=cols[gc])
           grid()
+
           # X/N (VAF) vs N plot -- y represnts VAF
-          plot(N_sub[voi[id],], X_sub[voi[id],]/(N_sub[voi[id],]+0.1), xlab="Total Count",
+          #plot(N_sub[voi[id],], X_sub[voi[id],]/(N_sub[voi[id],]+0.1), xlab="Total Count",
+          plot(N_allcells[,voi[id]], X_allcells[,voi[id]]/(N_allcells[,voi[id]]+0.1), xlab="Total Count",
             ylab="Alternative Allele Frequency", main=voi[id],
             col=cols[as.numeric(cell_label)], pch=pchs[as.numeric(cell_label)],
             cex=cex[as.numeric(cell_label)])
-         points(N_sub[voi[id], rejected_ind], X_sub[voi[id],rejected_ind]/(N_sub[voi[id],rejected_ind]+0.1),
-              pch=18, cex=2, col=cols[as.numeric(unique(cell_label)[unique(cell_label) == cluster])])
-          legend(x="topright",  col=c(cols[as.numeric(unique(cell_label))],
-                                  cols[as.numeric(unique(cell_label)[unique(cell_label) == cluster])]),
+         #points(N_sub[voi[id], rejected_ind], X_sub[voi[id],rejected_ind]/(N_sub[voi[id],rejected_ind]+0.1),
+          points(N_allcells[rejected_ind,voi[id]], X_allcells[rejected_ind,voi[id]]/(N_allcells[rejected_ind,voi[id]]+0.1),
+          pch=18, cex=2, col=cols[as.numeric(unique(cell_label)[unique(cell_label) == cluster])])
+          legend(x="topright",
+                 col=c(cols[as.numeric(unique(cell_label))],
+                       cols[as.numeric(unique(cell_label)[unique(cell_label) == cluster])]),
              pch=c(pchs[as.numeric(unique(cell_label))],18),
              legend=paste(c(as.vector(unique(cell_label)),paste0(cluster," FDR 0.1"))),
              bg="white",bty="o")
           grid()
-          abline(h=pnull, col="chartreuse4", lwd=2)
-          text(x=max(N_sub[voi[id],])*0.7,y=max(X_sub[voi[id],]/(N_sub[voi[id],]+0.1))*(pnull+0.1),
-            paste0("background freq=",round(pnull,6)),col="chartreuse4")
+          abline(h=pnull, col=cols[gc], lwd=2)
+          text(x=max(N_allcells[,voi[id]])*0.7,#x=max(N_sub[voi[id],])*0.7,
+               y=max(X_allcells[,voi[id]]/(N_allcells[,voi[id]]+0.1))*(pnull+0.1),
+            paste0("background freq=",round(pnull,6)),col=cols[gc])
 
           # Plot AF vs N profiles differently
-          plot(N_sub[voi[id],cell_label==cluster], X_sub[voi[id],cell_label==cluster]/(N_sub[voi[id],cell_label==cluster]+0.1),
+          #plot(N_sub[voi[id],cell_label==cluster], X_sub[voi[id],cell_label==cluster]/(N_sub[voi[id],cell_label==cluster]+0.1),
+          plot(N_allcells[cell_label==cluster,voi[id]], X_allcells[cell_label==cluster,voi[id]]/(N_allcells[cell_label==cluster,voi[id]]+0.1),
             xlab="Total Count", ylab="Alternative Allele Frequency", main=paste0(cluster," AF vs Total Count"),
             col=cols[as.numeric(cell_label)][cell_label==cluster],
             pch=pchs[as.numeric(cell_label)][cell_label==cluster],
             cex=cex[as.numeric(cell_label)][cell_label==cluster],
-            xlim=c(0,max(N_sub[voi[id],])), ylim=c(0,1))
-          points(N_sub[voi[id], rejected_ind], X_sub[voi[id],rejected_ind]/(N_sub[voi[id],rejected_ind]+0.1),
+            #xlim=c(0,max(N_sub[voi[id],])), ylim=c(0,1))
+            xlim=c(0,max(N_allcells[,voi[id]])), ylim=c(0,1))
+          #points(N_sub[voi[id], rejected_ind], X_sub[voi[id],rejected_ind]/(N_sub[voi[id],rejected_ind]+0.1),
+          points(N_allcells[rejected_ind,voi[id]], X_allcells[rejected_ind,voi[id]]/(N_allcells[rejected_ind,voi[id]]+0.1),
               pch=18, cex=2, col=cols[as.numeric(unique(cell_label)[unique(cell_label) == cluster])])
           legend=paste(unique(cell_label))
-          abline(h=pnull, col="chartreuse4", lwd=2)
-          text(x=max(N_sub[voi[id],])*0.7,y=pnull+0.1,
+          abline(h=pnull, col=cols[gc], lwd=2)
+          #text(x=max(N_sub[voi[id],])*0.7,y=pnull+0.1,
+          text(x=max(N_allcells[,voi[id]])*0.7,y=pnull+0.1,
             paste0("background freq=",round(pnull,6)),col="chartreuse4")
           grid()
+
+          # Diagnostic Histogram
+          hist(af[cell_label==cluster & n>0], breaks=seq(0,1,0.05),
+               xlab="allele frequency",
+               col=cols[as.numeric(unique(cell_label)[unique(cell_label) == cluster])],
+               main=cluster)
+          # SQRT Histogram
+          hist(sqrt(af[cell_label==cluster & n>0]), breaks=seq(0,1,0.05),
+               xlab="SQRT allele frequency",
+               col=cols[as.numeric(unique(cell_label)[unique(cell_label) == cluster])],
+               main=cluster)
         }
 
-       }else{ # normal cluster
-         if(plot_diagnostic==T){
-            plot(0,0, cex=0)
-            plot(0,0, cex=0)
-            plot(N_sub[voi[id],cell_label==cluster], X_sub[voi[id],cell_label==cluster]/(N_sub[voi[id],cell_label==cluster]+0.1),
-              xlab="Total Count", ylab="Alternative Allele Frequency", main=paste0(cluster," AF vs Total Count"),
-              col=cols[as.numeric(cell_label)][cell_label==cluster],
-              pch=pchs[as.numeric(cell_label)][cell_label==cluster],
-              cex=cex[as.numeric(cell_label)][cell_label==cluster],
-              xlim=c(0,max(N_sub[voi[id],])), ylim=c(0,1))
-            legend=paste(unique(cell_label))
-            abline(h=pnull, col="chartreuse4", lwd=2)
-            text(x=max(N_sub[voi[id],])*0.7,y=pnull+0.1,
-              paste0("background freq=",round(pnull,6)),col="chartreuse4")
-          grid()
+       # }else{ # normal cluster
+       #   if(plot_diagnostic==T){
+       #      plot(0,0, cex=0)
+       #      plot(0,0, cex=0)
+       #      plot(N_sub[voi[id],cell_label==cluster], X_sub[voi[id],cell_label==cluster]/(N_sub[voi[id],cell_label==cluster]+0.1),
+       #        xlab="Total Count", ylab="Alternative Allele Frequency", main=paste0(cluster," AF vs Total Count"),
+       #        col=cols[as.numeric(cell_label)][cell_label==cluster],
+       #        pch=pchs[as.numeric(cell_label)][cell_label==cluster],
+       #        cex=cex[as.numeric(cell_label)][cell_label==cluster],
+       #        xlim=c(0,max(N_sub[voi[id],])), ylim=c(0,1))
+       #      legend=paste(unique(cell_label))
+       #      abline(h=pnull, col="chartreuse4", lwd=2)
+       #      text(x=max(N_sub[voi[id],])*0.7,y=pnull+0.1,
+       #        paste0("background freq=",round(pnull,6)),col="chartreuse4")
+       #    grid()
 
-        # Diagnostic Histogram
-        hist(af[cell_label==cluster & n>0], breaks=seq(0,1,0.05),
-          xlab="allele frequency",
-          col=cols[as.numeric(unique(cell_label)[unique(cell_label) == cluster])],
-          main=cluster)
-        # SQRT Histogram
-        hist(sqrt(af[cell_label==cluster & n>0]), breaks=seq(0,1,0.05),
-          xlab="SQRT allele frequency",
-          col=cols[as.numeric(unique(cell_label)[unique(cell_label) == cluster])],
-           main=cluster)
        }
-      }
     }
     if(plot_diagnostic==T){
-      dev.off()
+       dev.off()
     }
     if(verbose==T){
-      message("Diagnostic Plot of the variant saved!")
+      message("Diagnostic Plots of the variant saved!")
     }
     pval_df= cbind(pval_df,pval)
 
@@ -223,10 +266,10 @@ ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Norm
       k = 1
       for (cluster in levels(cell_label)){
         g <- ggplot(plot_df, aes(x = UMAP_1, y = UMAP_2)) +
-        geom_point(size=1,col="gray") +
-        geom_point(data=plot_df[plot_df[cluster] == 1,],aes(x = UMAP_1, y = UMAP_2),size=0.5,color="red")+
-        theme(plot.title = element_text(hjust = 0.5)) +
-        ggtitle(paste0("Signicant ",cluster, " Cells"))
+          geom_point(size=1,col="gray") +
+          geom_point(data=plot_df[plot_df[cluster] == 1,],aes(x = UMAP_1, y = UMAP_2),size=0.5,color="red")+
+          theme(plot.title = element_text(hjust = 0.5)) +
+          ggtitle(paste0("Signicant ",cluster, " Cells"))
         g_list[[k]] = g
         k=k+1
       }
@@ -240,6 +283,7 @@ ZIBB_test <- function(X_sub,N_sub,alpha,beta,delta_ij_hat,FDR_alpha=0.1,gc="Norm
       }
     }
   }
+
   colnames(pval_df) = voi
   return(pval_df)
 }

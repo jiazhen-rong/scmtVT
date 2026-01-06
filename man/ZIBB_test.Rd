@@ -9,6 +9,8 @@ The significant cells for each variant of interest will be labeled in the diagno
 ZIBB_test(
   X_sub,
   N_sub,
+  X_allcells,
+  N_allcells,
   alpha,
   beta,
   delta_ij_hat,
@@ -29,9 +31,13 @@ ZIBB_test(
 )
 }
 \arguments{
-\item{X_sub}{alternate allele count matrix.}
+\item{X_sub}{alternate allele count matrix with control cells and vois.}
 
-\item{N_sub}{total variant count matrix.}
+\item{N_sub}{total variant count matrix with control cells and vois.}
+
+\item{X_allcells}{alternate allele count matrix with all cells and vois.}
+
+\item{N_allcells}{total variant count matrix with all cells and vois.}
 
 \item{alpha}{parameter of beta prior, estimated from EM.}
 
